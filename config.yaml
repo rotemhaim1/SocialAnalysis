@@ -1,0 +1,139 @@
+# QAnon Network Analysis Configuration
+
+# Random seed for reproducibility
+seed: 42
+
+# Network size
+# Small size (200) for quick testing - increase to 2000+ for full analysis
+# Change this value and set pipeline.regenerate_data: true to regenerate
+n_nodes: 2000
+
+# Community proportions (must sum to 1.0)
+community_proportions:
+  CORE: 0.55
+  SAVETHECHILDREN: 0.25
+  OPPOSITION: 0.20
+
+# Mixing matrix: probability of edge between communities
+# Format: src_community -> dst_community
+# Values represent relative probability (will be normalized)
+mixing_matrix:
+  CORE:
+    CORE: 0.70
+    SAVETHECHILDREN: 0.20
+    OPPOSITION: 0.10
+  SAVETHECHILDREN:
+    CORE: 0.25
+    SAVETHECHILDREN: 0.60
+    OPPOSITION: 0.15
+  OPPOSITION:
+    CORE: 0.15
+    SAVETHECHILDREN: 0.20
+    OPPOSITION: 0.65
+
+# Edge sign probabilities by community pair
+# Format: (src_comm, dst_comm) -> [prob_positive, prob_neutral, prob_negative]
+sign_probabilities:
+  CORE-CORE: [0.75, 0.20, 0.05]
+  CORE-SAVETHECHILDREN: [0.60, 0.30, 0.10]
+  CORE-OPPOSITION: [0.10, 0.25, 0.65]
+  SAVETHECHILDREN-CORE: [0.55, 0.30, 0.15]
+  SAVETHECHILDREN-SAVETHECHILDREN: [0.70, 0.25, 0.05]
+  SAVETHECHILDREN-OPPOSITION: [0.20, 0.40, 0.40]
+  OPPOSITION-CORE: [0.15, 0.30, 0.55]
+  OPPOSITION-SAVETHECHILDREN: [0.25, 0.35, 0.40]
+  OPPOSITION-OPPOSITION: [0.65, 0.25, 0.10]
+
+# Overall neutral edge ratio (target)
+neutral_edge_ratio: 0.25
+
+# Edge weight distribution parameters
+edge_weight:
+  distribution: "lognormal"  # or "pareto"
+  lognormal:
+    mean: 1.5
+    sigma: 0.8
+  pareto:
+    scale: 1.0
+    shape: 2.0
+  min_weight: 1.0
+  max_weight: 10.0
+
+# Interaction types and their probabilities
+interaction_types:
+  - name: "mention"
+    probability: 0.30
+  - name: "reply"
+    probability: 0.25
+  - name: "retweet/share"
+    probability: 0.35
+  - name: "quote"
+    probability: 0.10
+
+# Interaction type -> sign correlation adjustments
+# How interaction type affects sign probabilities
+interaction_sign_adjustments:
+  "retweet/share":
+    same_community: [0.15, -0.05, -0.10]  # increases positive
+    cross_community: [0.05, -0.05, 0.00]
+  "quote":
+    same_community: [0.05, -0.05, 0.00]
+    cross_community: [-0.10, 0.00, 0.10]  # increases negative
+  "reply":
+    same_community: [0.00, 0.00, 0.00]
+    cross_community: [-0.05, 0.00, 0.05]
+
+# Network generation parameters
+generation:
+  # Preferential attachment parameters per community
+  intra_community_edges_per_node: 3.5
+  # Inter-community edge probability multiplier
+  inter_community_probability_multiplier: 0.15
+  # Bridge nodes: number and connectivity
+  n_bridge_nodes: 15
+  bridge_connectivity_multiplier: 2.5
+  # Role distribution
+  role_distribution:
+    core: 0.10
+    influencer: 0.15
+    bridge: 0.05
+    regular: 0.60
+    opposition: 0.10
+
+# Sampling parameters for expensive computations
+sampling:
+  betweenness:
+    k: 100  # number of samples for approximate betweenness
+  triads:
+    n_samples: 50000  # number of triads to sample
+  spectral_analysis:
+    top_n_nodes: 500  # top nodes by degree for spectral analysis
+
+# PageRank parameters
+pagerank:
+  alpha: 0.85
+  max_iter: 100
+  tol: 1e-06
+
+# Output paths
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  outputs_tables: "outputs/tables"
+  outputs_figures: "outputs/figures"
+  outputs_reports: "outputs/reports"
+
+# Visualization parameters
+visualization:
+  network_plot:
+    top_k_nodes: 200
+    node_size_min: 50
+    node_size_max: 500
+    edge_width_scale: 0.5
+  figure_dpi: 300
+  figure_format: "png"
+
+# Pipeline control
+pipeline:
+  regenerate_data: true  # set to true to force regeneration (needed when changing n_nodes)
+  skip_if_exists: true

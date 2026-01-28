@@ -1,6 +1,14 @@
 # Generated output files
 *.png
 
+# Data and outputs
+data/
+outputs/
+
+# Temporary Office files
+~$*
+*.tmp
+
 # Python
 __pycache__/
 *.py[cod]

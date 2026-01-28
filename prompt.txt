@@ -1,0 +1,139 @@
+You are an expert data scientist and network analysis engineer. Generate a complete, runnable Python project that creates a realistic synthetic signed, weighted, directed social network inspired by QAnon dynamics, then computes all required network metrics and outputs tables, figures, and a short textual report.
+
+GOALS
+1) Generate a realistic synthetic network with more than 40–60 nodes: target N=2000 nodes (configurable), directed + weighted + signed edges (sign in {-1,0,+1}).
+2) Include explicit communities that reflect the project: at least three communities:
+   - CORE (QAnon core activists) ~ 55% of nodes
+   - SAVETHECHILDREN (bridge-to-mainstream community) ~ 25% of nodes
+   - COUNTER / OPPOSITION (skeptics/journalists/debunkers) ~ 20% of nodes
+   Allow 1–2 small additional micro-communities (e.g., wellness influencers, political activism) optionally.
+3) Ensure structure is plausible:
+   - Heavy-tailed degree distribution (scale-free / preferential attachment-like)
+   - Strong intra-community connectivity (assortative mixing)
+   - Cross-community edges exist: CORE<->SAVETHECHILDREN mostly positive or neutral; CORE<->OPPOSITION mostly negative; SAVETHECHILDREN<->OPPOSITION mixed but leaning negative/neutral.
+   - Include a small set of “bridge” nodes that yield high betweenness.
+   - Include some neutral edges (0) representing mentions without stance.
+
+DELIVERABLES / PROJECT STRUCTURE
+Create a folder structure:
+
+qanon_network_project/
+  README.md
+  requirements.txt
+  config.yaml
+  data/
+    raw/
+    processed/
+  outputs/
+    tables/
+    figures/
+    reports/
+  src/
+    __init__.py
+    generate_data.py
+    metrics.py
+    balance.py
+    communities.py
+    visualizations.py
+    run_pipeline.py
+    utils.py
+
+DATA OUTPUT REQUIREMENTS
+1) Save nodes to CSV: data/processed/nodes.csv with columns:
+   node_id (int), community (str), role (str: "core", "bridge", "influencer", "opposition", etc.), activity (float), created_at (optional)
+2) Save edges to CSV: data/processed/edges.csv with columns:
+   src (int), dst (int), weight (float), sign (int in -1,0,1), interaction_type (str), timestamp (optional)
+3) Save adjacency in a sparse format too (optional): data/processed/adjacency.npz
+
+SYNTHETIC GENERATION SPEC (IMPORTANT)
+- Use a community-aware scale-free model:
+  Start with 3 community subgraphs, each built with a preferential attachment mechanism.
+  Then add inter-community edges according to a mixing matrix P(comm_i -> comm_j).
+- Edge direction:
+  Model that “influencers” and “core hubs” have high out-degree (broadcast), while many nodes have higher in-degree (receive/retweet).
+- Edge weight:
+  Use positive weights in [1, 10] with a skew (e.g., lognormal or Pareto) to mimic engagement count.
+- Edge sign assignment:
+  Use a rule-based probabilistic function of (src community, dst community, interaction_type).
+  Include at least 20–30% neutral edges overall.
+- Interaction types:
+  Include a categorical field with at least: "mention", "reply", "retweet/share", "quote".
+  Signs correlate with interaction type: retweet/share tends positive for same-community, quote/reply more likely negative across communities.
+- Reproducibility:
+  Fix random seed from config.yaml.
+
+METRICS TO COMPUTE (must be implemented)
+A) Node-level centralities:
+  - in-degree, out-degree, degree (normalized)
+  - closeness centrality (handle disconnected graphs; use harmonic closeness if needed)
+  - betweenness centrality (approximate for scale using sampling; must be feasible for N=2000)
+  - eigenvector centrality (for directed graphs: choose a method; if not stable, use Katz or eigenvector on symmetrized |A|)
+  - PageRank (directed; include damping factor alpha=0.85)
+  For all: output CSV outputs/tables/node_metrics.csv
+  And top-20 tables for each metric (CSV).
+
+B) Graph-level metrics:
+  - density
+  - Freeman centralization (degree centralization). Implement the “potential max degree” version clearly:
+    sum(max_possible_degree - deg(v)) / ((n-1)(n-2))
+    and also compute the “empirical max degree” version for comparison.
+  Output outputs/tables/graph_metrics.json or .csv.
+
+C) Signed network analysis + balance:
+  - edge sign distribution overall and per (community pair)
+  - triad balance: compute proportion of balanced vs unbalanced triads in a sampled way (since N=2000).
+    Use sign product rule: balanced if product > 0; treat neutral edges carefully:
+      Provide TWO approaches:
+        (1) Ignore triads containing any neutral edge
+        (2) Count neutral edges as "unknown" and report separately
+  - Additionally implement a spectral proxy inspired by signed adjacency powers (A^3 diagonal) on a reduced subgraph (e.g., top 500 nodes by degree) to keep it tractable.
+  Output CSV/JSON and a short explanation in outputs/reports/balance_report.md.
+
+D) Community analysis:
+  - run a community detection algorithm on the unsigned projection (e.g., Louvain if available; otherwise greedy modularity) and compare detected vs planted communities via confusion matrix-like table.
+  - compute inter/intra edge densities and sign ratios between communities.
+  Output outputs/tables/community_summary.csv
+
+VISUALIZATIONS (outputs/figures)
+- Network plot: for a subgraph of top K nodes (K=150-250) by PageRank or degree; color by community; edge color by sign (if too heavy, show sign as linestyle; but keep simple).
+- Degree distribution histogram (log scale allowed).
+- Heatmap of inter-community sign distribution (counts or ratios).
+- Bar chart for top-10 nodes by PageRank and Betweenness.
+Use matplotlib only (no seaborn). Do not hardcode colors; rely on defaults or minimal.
+
+PIPELINE
+- Provide a single command entrypoint:
+  python -m src.run_pipeline --config config.yaml
+This should:
+  1) generate data (unless exists)
+  2) compute metrics
+  3) generate figures
+  4) write a concise markdown report: outputs/reports/summary.md
+The summary should include:
+  - dataset size (#nodes, #edges)
+  - main graph metrics (density, centralization)
+  - top nodes by key metrics
+  - key community findings
+  - balance findings
+
+CONFIG
+- config.yaml should include:
+  seed, n_nodes, community proportions, mixing matrix, neutral edge ratio,
+  edge weight distribution parameters, sampling parameters for betweenness and triads,
+  output paths.
+
+QUALITY REQUIREMENTS
+- Code must be clean, documented, and fast enough for N=2000.
+- Use networkx + numpy + scipy + pandas + matplotlib.
+- Use approximate algorithms where needed; include comments explaining tradeoffs.
+- Handle disconnected graphs robustly.
+- All scripts should be importable; avoid notebook-only code.
+
+FINALLY
+After generating the project files, print a short checklist in README.md:
+- how to install
+- how to run
+- where outputs are saved
+- how to tweak realism via config.
+
+Do not ask me follow-up questions; make reasonable defaults and implement everything end-to-end.
