@@ -1,5 +1,6 @@
-# Generated output files
+# Generated output files (allow PNGs in outputs/)
 *.png
+!outputs/**/*.png
 
 # Data (keep outputs for sharing results)
 data/
