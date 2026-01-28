@@ -1,9 +1,9 @@
 # Generated output files
 *.png
 
-# Data and outputs
+# Data (keep outputs for sharing results)
 data/
-outputs/
+# outputs/  # Commented out to include outputs in repository
 
 # Temporary Office files
 ~$*

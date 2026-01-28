@@ -1,0 +1,2 @@
+n_nodes,n_edges,density,freeman_degree_centralization_normalized,centralization_empirical_auxiliary,max_degree,avg_degree
+2015,21226,0.005230384824836566,0.9905223791137152,0.9818776428541207,1000,21.06799007444169

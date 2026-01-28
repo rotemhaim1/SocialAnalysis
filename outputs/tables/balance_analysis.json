@@ -1,0 +1,35 @@
+{
+  "overall_sign_distribution": {
+    "positive": 9559,
+    "neutral": 6021,
+    "negative": 5646
+  },
+  "triad_balance": {
+    "n_triads_sampled": 735,
+    "approach1": {
+      "balanced": 80,
+      "unbalanced": 79,
+      "skipped_with_neutral": 551,
+      "balanced_ratio": 0.11267605633802817,
+      "unbalanced_ratio": 0.11126760563380282
+    },
+    "approach2": {
+      "balanced": 80,
+      "unbalanced": 79,
+      "unknown_with_neutral": 551,
+      "balanced_ratio": 0.10884353741496598,
+      "unbalanced_ratio": 0.10748299319727891,
+      "unknown_ratio": 0.7496598639455783
+    }
+  },
+  "spectral_balance": {
+    "n_nodes_analyzed": 500,
+    "positive_diagonal_count": 230,
+    "negative_diagonal_count": 189,
+    "zero_diagonal_count": 81,
+    "positive_ratio": 0.46,
+    "negative_ratio": 0.378,
+    "mean_diagonal": 74.26124828069553,
+    "std_diagonal": 532.2919087964491
+  }
+}

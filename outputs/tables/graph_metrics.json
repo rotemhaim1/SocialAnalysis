@@ -1,0 +1,9 @@
+{
+  "n_nodes": 2015,
+  "n_edges": 21226,
+  "density": 0.005230384824836566,
+  "freeman_degree_centralization_normalized": 0.9905223791137152,
+  "centralization_empirical_auxiliary": 0.9818776428541207,
+  "max_degree": 1000,
+  "avg_degree": 21.06799007444169
+}
